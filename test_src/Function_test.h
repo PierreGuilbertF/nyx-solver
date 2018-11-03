@@ -24,20 +24,18 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //=========================================================================
 
-#include "NumericalDiff_test.h"
+#ifndef FUNCTION_TEST_H
+#define FUNCTION_TEST_H
 
-//-------------------------------------------------------------------------
-int AutomaticStepDiffTest()
-{
-  unsigned int nbrErr = 0;
+// LOCAL
+#include "Function.h"
 
-  if (nbrErr == 0)
-  {
-    std::cout << "Test: " << __func__ << " SUCCEEDED" << std::endl;
-  }
-  else
-  {
-    std::cout << "Test: " << __func__ << " FAILED" << std::endl;
-  }
-  return nbrErr;
-}
+// STD
+#include <iostream>
+
+//Eigen
+#include <Eigen/Dense>
+
+unsigned int TestFunction();
+
+#endif // FUNCTION_TEST_H

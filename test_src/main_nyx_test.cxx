@@ -26,17 +26,35 @@
 
 // LOCAL
 #include "main_nyx_test.h"
+#include "Function_test.h"
 #include "NumericalDiff_test.h"
 
 // STD
 #include <iostream>
 
+// Eigen
+#include <Eigen/Dense>
+
 int main(int argc, char *argv[])
 {
   int nbrErr = 0;
 
+  // Function tests
+  nbrErr += TestFunction();
+
   // Numerical Differentiation tests
   nbrErr += AutomaticStepDiffTest();
+
+  if (nbrErr == 0)
+  {
+    std::cout << __func__ << " SUCCEEDED" << std::endl;
+    return EXIT_SUCCESS;
+  }
+  else
+  {
+    std::cout << __func__ << " FAILED, nbrErr: " << nbrErr << std::endl;
+    return EXIT_FAILURE;
+  }
 
   return EXIT_SUCCESS;
 }

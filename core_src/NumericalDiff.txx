@@ -28,6 +28,7 @@
 
 namespace nyx
 {
+  //-------------------------------------------------------------------------
   template <typename F, typename T>
   NumericalDiff<F, T>::NumericalDiff(F argFunction)
   {

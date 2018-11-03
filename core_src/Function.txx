@@ -24,4 +24,41 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //=========================================================================
 
-# include "Function.h"
+// LOCAL
+#include "Function.h"
+
+#ifndef FUNCTION_TXX
+#define FUNCTION_TXX
+
+//-------------------------------------------------------------------------
+template <typename T>
+Function<T>::Function()
+{
+  // default R -> R function
+  this->inDim = 1;
+  this->outDim = 1;
+}
+
+//-------------------------------------------------------------------------
+template <typename T>
+Function<T>::Function(unsigned int argInDim, unsigned int argOutDim)
+{
+  this->inDim = argInDim;
+  this->outDim = argOutDim;
+}
+
+//-------------------------------------------------------------------------
+template <typename T>
+unsigned int Function<T>::GetInDim()
+{
+  return this->inDim;
+}
+
+//-------------------------------------------------------------------------
+template <typename T>
+unsigned int Function<T>::GetOutDim()
+{
+  return this->outDim;
+}
+
+#endif // FUNCTION_TXX

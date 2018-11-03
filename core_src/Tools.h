@@ -24,20 +24,30 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //=========================================================================
 
-#include "NumericalDiff_test.h"
+#ifndef TOOLS_H
+#define TOOLS_H
 
-//-------------------------------------------------------------------------
-int AutomaticStepDiffTest()
+// STD
+#include <cmath>
+#include <numeric>
+
+namespace nyx
 {
-  unsigned int nbrErr = 0;
+  // pi
+  const double pi = 4.0 * std::atan(1.0);
 
-  if (nbrErr == 0)
+  // radian degree conversion
+  const double Deg2RadFactor = pi / 180.0;
+  const double Rad2DegFactor = 1.0 / Deg2RadFactor;
+  double Deg2Rad(const double x) { return Deg2RadFactor * x; }
+  double Rad2Deg(const double x) { return Rad2DegFactor * x; }
+
+  // compare two numbers
+  template <typename T>
+  bool IsEqual(T x, T y)
   {
-    std::cout << "Test: " << __func__ << " SUCCEEDED" << std::endl;
+    return std::abs(x - y) < std::numeric_limits<T>::epsilon();
   }
-  else
-  {
-    std::cout << "Test: " << __func__ << " FAILED" << std::endl;
-  }
-  return nbrErr;
 }
+
+#endif // TOOLS_H

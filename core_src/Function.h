@@ -47,51 +47,66 @@ namespace nyx
   * IsoF:  F -> R^dim(F), x -> Mat(Bf, x)
   *
   * it also exists a canonical bijection between F(E -> F) and
-  * F(R^dim(E) -> R^dim(F))
+  * F(R^dim(E) -> R^dim(F)):
+  * let x belong to E and X being the coordinate representation
+  * of x in the Be basis
+  * let y = f(x) belong to F and Y = F(X) being the coordinate representation
+  * of y in the Bf basis. hence, we have:
   *
-  * Let's F be a function F: U -> R, U an open of R.
-  * F is said to be differentiable at a in U if:
-  * F'(a) = lim h -> 0 (F(x+h)-F(x)) / h exists (i)
-  * it exist o(h), F(a+h) = F(a) + F'(a)h + o(h) and lim h -> 0 o(h)/h = 0 (ii)
+  * f(x) = (IsoF^(-1) o F o IsoE)(x) (1)
+  * and then,
+  * F = IsoF o f o IsoE^(-1)
   *
-  * The idea is to compute an approximation of the derivation
-  * of a function F using the differentiation definition with
-  * h small enought
+  * Here we propose to represent f by its isomorphic correspondant F
+  * But the user should not forget that F is just a representation using
+  * an ismorphism of the real function f.
   *
-  * F(x+h) = F(x) + F'(x)h + o(h) (1)
-  * Hence,
-  * F'(x) = [F(x+h) - F(x)] / h - o(h) (2)
-  * Using (2) and removing the o(h) lead to the Newton's
-  * difference quotient, i.e:
-  * F'(x) ~ [F(x+h) - F(x)]/h
-  *
-  * But we can also use a more sophisticated formula to have
-  * a better error control. Using (2) with +h and -h leads
-  * to the symmetric difference quotient
-  * F'(X) ~ [F(x+h) - F(x-h)]/(2h)
-  *
-  * Using this formula the error goes from o(h) to o(h^2)
-  * R = -f'''(a) * h^2 / 6
-  *
-  * From a mathematical point of view, the smaller h the better the
-  * accuracy of the derivative approximation. But, since we are using
-  * floating point arithmetic we will introduce rounded error in the approx.
-  * The choice of h is then very important, it should not be too big or
-  * the approximaion will be poor since the error depend on h o(h) or o(h^2)
-  * depending on the diff formula. On the other hand, the choice of h should not
-  * be too big or the rounded error will decrease the accuracy.
-  * In fact, all the difference formulae are ill-conditioned, i.e
-  * a small change of the input argument (h) can lead to a big change
-  * of the output argument (the derivative approximation).
-  *
-  * A choice of h that will not lead to huge rounded error is sqrt(eps) * a
-  * with eps being the machine accuracy
   *
   * \author $Author: Pierre Guilbert $
   * \version $Revision: 1.0 $
   * \date $Date: 02-11-2018 $
   * Contact: spguilbert@gmail.com
   */
+  template <typename T>
+  class Function
+  {
+  public:
+    /// default constructor of the function
+    Function();
+
+    /// constructor of the function
+    Function(unsigned int argInDim, unsigned int argOutDim);
+
+    /// Evaluate the function at the point X
+    Eigen::Matrix<T, Eigen::Dynamic, 1> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+    {
+      // init output and set all values to zero
+      Eigen::Matrix<T, Eigen::Dynamic, 1> Y(this->outDim, 1);
+      Y.setZero();
+
+      // Check dimensions consistency
+      if (X.rows() != this->inDim)
+      {
+        std::cout << "error in: " << __func__ << " expected vector of dim: "
+          << this->inDim << " got dim: " << X.rows() << std::endl;
+        return Y;
+      }
+
+      return Y;
+    }
+
+    /// Get in / out dimensions
+    unsigned int GetInDim();
+    unsigned int GetOutDim();
+
+  protected:
+    /// input and output dimensions of F
+    unsigned int inDim;
+    unsigned int outDim;
+  };
+
+  // methods implementation
+#include "Function.txx"
 
 } // namespace nyx
 #endif // FUNCTION_H
