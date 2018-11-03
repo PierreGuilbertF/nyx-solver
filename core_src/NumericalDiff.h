@@ -28,7 +28,9 @@
 #define NUMERICAL_DIFF_H
 
 // STD
+#include <numeric>
 #include <iostream>
+#include <cmath>
 
 // Eigen
 #include <Eigen/Dense>
@@ -93,18 +95,31 @@ namespace nyx
     NumericalDiff(F argFunction);
 
     /// Compute the jacobian of Function at the point X
-    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X);
+    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+    {
+      this->ComputeJacobian(X);
+      return this->Jacobian;
+    }
   protected:
     /// h values used to approximate the coordinate
     /// functions partial derivation using a determined
     /// differenciate formulae (Newton quotient, symmetric, ...)
-    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> h;
+    Eigen::Matrix<T, Eigen::Dynamic, 1> h;
+
+    /// Computed approximated jacobian of the F function
+    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Jacobian;
 
     /// Function to numerically differentiate
     F Function; /// function from R^inDIm -> R^outDim
     unsigned int inDim; /// input dimension of F
     unsigned int outDim; /// output dimension of F
+
+    /// Compute the approximated Jacobian
+    void ComputeJacobian(Eigen::Matrix<T, Eigen::Dynamic, 1> X);
   };
+
+// methods implementation
+#include "NumericalDiff.txx"
 
 } // namespace nyx
 #endif // NUMERICAL_DIFF_H

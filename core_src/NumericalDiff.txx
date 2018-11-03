@@ -26,16 +26,53 @@
 
 #include "NumericalDiff.h"
 
-namespace nyx
-{
-  //-------------------------------------------------------------------------
-  template <typename F, typename T>
-  NumericalDiff<F, T>::NumericalDiff(F argFunction)
-  {
-    this->Function = argFunction;
+#ifndef NUMERICAL_DIFF_TXX
+#define NUMERICAL_DIFF_TXX
 
-    // Update the input / output dimensions
-    this->inDim = this->Function.InDim;
-    this->outDim = this->Function.OutDim;
+//-------------------------------------------------------------------------
+template <typename F, typename T>
+NumericalDiff<F, T>::NumericalDiff(F argFunction)
+{
+  this->Function = argFunction;
+
+  // Update the input / output dimensions
+  this->inDim = this->Function.GetInDim();
+  this->outDim = this->Function.GetOutDim();
+}
+
+//-------------------------------------------------------------------------
+template <typename F, typename T>
+void NumericalDiff<F, T>::ComputeJacobian(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+{
+  // init Jacobian matrix and set coefficients to zero
+  this->Jacobian = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>(this->outDim, this->inDim);
+  this->Jacobian.setZero();
+
+  // check that the input vector length is consistent
+  if (X.rows() != this->inDim)
+  {
+    std::cout << "error in: " << __func__ << " expected vector of dim: "
+              << this->inDim << " got dim: " << X.rows() << std::endl;
+    return;
   }
-} // namespace nyx
+
+  // automatically adapt the step
+  this->h = Eigen::Matrix<T, Eigen::Dynamic, 1>(this->inDim);
+  const double epsilon = std::sqrt(std::numeric_limits<T>::epsilon());
+  for (unsigned int k = 0; k < this->inDim; ++k)
+  {
+    this->h(k) = epsilon * X(k);
+  }
+
+  // Compute the approximation
+  for (unsigned int partialDiffIndex = 0; partialDiffIndex < this->inDim; ++partialDiffIndex)
+  {
+    // directional small step
+    Eigen::Matrix<T, Eigen::Dynamic, 1> dX(this->inDim);
+    dX.setZero(); dX(partialDiffIndex) = this->h(partialDiffIndex);
+
+    this->Jacobian.col(partialDiffIndex) = (this->Function(X + dX) - this->Function(X - dX)) / (2.0 * this->h(partialDiffIndex));
+  }
+}
+
+#endif // NUMERICAL_DIFF_TXX

@@ -39,14 +39,21 @@ namespace nyx
   // radian degree conversion
   const double Deg2RadFactor = pi / 180.0;
   const double Rad2DegFactor = 1.0 / Deg2RadFactor;
-  double Deg2Rad(const double x) { return Deg2RadFactor * x; }
-  double Rad2Deg(const double x) { return Rad2DegFactor * x; }
+  //double Deg2Rad(const double x) { return Deg2RadFactor * x; }
+  //double Rad2Deg(const double x) { return Rad2DegFactor * x; }
 
   // compare two numbers
   template <typename T>
   bool IsEqual(T x, T y)
   {
     return std::abs(x - y) < std::numeric_limits<T>::epsilon();
+  }
+
+  // compare two numbers
+  template <typename T>
+  bool IsEqual(T x, T y, T epsilon)
+  {
+    return std::abs(x - y) < epsilon;
   }
 }
 

@@ -29,7 +29,4 @@
 
 int AutomaticStepDiffTest();
 
-// LOCAL
-#include "NumericalDiff.h"
-
 #endif // NUMERICAL_DIFF_TEST_H

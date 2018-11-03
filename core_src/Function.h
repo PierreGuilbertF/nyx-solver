@@ -27,6 +27,9 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
+// STD
+#include <iostream>
+
 // Eigen
 #include <Eigen/Dense>
 
