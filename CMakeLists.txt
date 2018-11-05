@@ -35,8 +35,10 @@ set(nyx_core_folder ${CMAKE_CURRENT_SOURCE_DIR}/core_src)
 set(nyx_tests_sources ${nyx_tests_folder}/main_nyx_test.cxx
 					  ${nyx_tests_folder}/Function_test.cxx
                       ${nyx_tests_folder}/NumericalDiff_test.cxx
+					  ${nyx_tests_folder}/NewtonRaphson_test.cxx
 					  ${nyx_core_folder}/Function.txx
-                      ${nyx_core_folder}/NumericalDiff.txx)
+                      ${nyx_core_folder}/NumericalDiff.txx
+					  ${nyx_core_folder}/NewtonRaphson.txx)
 
 # required include directories
 set(nyx_core_include_dir ${CMAKE_CURRENT_SOURCE_DIR}/core_src)

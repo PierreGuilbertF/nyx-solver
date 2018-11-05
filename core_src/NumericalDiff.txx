@@ -31,6 +31,15 @@
 
 //-------------------------------------------------------------------------
 template <typename F, typename T>
+NumericalDiff<F, T>::NumericalDiff()
+{
+  // Update the input / output dimensions
+  this->inDim = this->Function.GetInDim();
+  this->outDim = this->Function.GetOutDim();
+}
+
+//-------------------------------------------------------------------------
+template <typename F, typename T>
 NumericalDiff<F, T>::NumericalDiff(F argFunction)
 {
   this->Function = argFunction;

@@ -91,6 +91,9 @@ namespace nyx
   class NumericalDiff
   {
   public:
+    /// default constructor
+    NumericalDiff();
+
     /// Class constructor
     NumericalDiff(F argFunction);
 
