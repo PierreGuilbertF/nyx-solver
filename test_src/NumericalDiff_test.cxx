@@ -28,61 +28,14 @@
 #include "NumericalDiff_test.h"
 #include "Function.h"
 #include "NumericalDiff.h"
+#include "CommonFunctions.h"
 #include "Tools.h"
 
 // STD
 #include <iostream>
 
-template <typename T>
-class SquareRoot : public nyx::Function<T>
-{
-public:
-  SquareRoot()
-    : nyx::Function<T>()
-  {
-    //
-  }
-
-  SquareRoot(unsigned int inDim, unsigned int outDim)
-    : nyx::Function<T>(inDim, outDim)
-  {
-    //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, 1> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
-  {
-    // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, 1> Y(this->outDim, 1);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
-
-    if (this->inDim != this->outDim)
-    {
-      std::cout << "error in: " << __func__ << " input and output dimension should match" << std::endl;
-      return Y;
-    }
-
-    for (unsigned int k = 0; k < this->outDim; ++k)
-    {
-      Y(k) = std::sqrt(X(k));
-    }
-
-    return Y;
-  }
-
-protected:
-
-};
-
 //-------------------------------------------------------------------------
-int AutomaticStepDiffTest()
+int NumericalDiffSquareRoot()
 {
   unsigned int nbrErr = 0;
 
@@ -103,6 +56,94 @@ int AutomaticStepDiffTest()
     for (unsigned int j = 0; j < 3; ++j)
     {
       if (!nyx::IsEqual(J(i, j), realJ(i, j), 1e-8))
+        nbrErr++;
+    }
+  }
+
+  if (nbrErr == 0)
+  {
+    std::cout << "Test: " << __func__ << " SUCCEEDED" << std::endl;
+  }
+  else
+  {
+    std::cout << "Test: " << __func__ << " FAILED" << std::endl;
+  }
+  return nbrErr;
+}
+
+//-------------------------------------------------------------------------
+int NumericalDiffEulerAngleMapping()
+{
+  unsigned int nbrErr = 0;
+
+  EulerAngleSO3Mapping<double> eulMapping(3, 9);
+  nyx::NumericalDiff<EulerAngleSO3Mapping<double>, double> numJacobian(eulMapping);
+  EulerAngleSO3MappingJacobian<double> analyticjacobian(3, 9);
+
+  // test random samples with fixed seed
+  unsigned int nbrSample = 25;
+  std::srand(1992);
+
+  for (unsigned int k = 0; k < nbrSample; ++k)
+  {
+    Eigen::Matrix<double, 3, 1> X;
+    X(0) = 2.0 * nyx::pi * (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX) - 0.5);
+    X(1) = 2.0 * nyx::pi * (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX) - 0.5);
+    X(2) = 2.0 * nyx::pi * (static_cast<double>(std::rand()) / static_cast<double>(RAND_MAX) - 0.5);
+
+    Eigen::Matrix<double, 9, 3> J1 = numJacobian(X);
+    Eigen::Matrix<double, 9, 3> J2 = analyticjacobian(X);
+    for (unsigned int i = 0; i < 9; ++i)
+    {
+      for (unsigned int j = 0; j < 3; ++j)
+      {
+        if (!nyx::IsEqual(J1(i, j), J2(i, j), 5e-7))
+          nbrErr++;
+      }
+    }
+  }
+
+  if (nbrErr == 0)
+  {
+    std::cout << "Test: " << __func__ << " SUCCEEDED" << std::endl;
+  }
+  else
+  {
+    std::cout << "Test: " << __func__ << " FAILED" << std::endl;
+  }
+  return nbrErr;
+}
+
+int NumericalDiffMethods()
+{
+  unsigned int nbrErr = 0;
+
+  MultiVarPolynomial<double> f(2, 2);
+  nyx::NumericalDiff<MultiVarPolynomial<double>, double> J1;
+  MultiVarPolynomialJacobian<double> J2(2, 2);
+
+  Eigen::Matrix<double, 2, 1> X;
+  X << -23.4, 11.23;
+
+  // Faster, less accurate
+  J1.SetDifferentiationMethod(nyx::DifferentiationMethod::NewtonQuotient);
+  Eigen::MatrixXd diffJ1 = J1(X) - J2(X);
+  // average, average accurate
+  J1.SetDifferentiationMethod(nyx::DifferentiationMethod::SymmetricQuotient);
+  Eigen::MatrixXd diffJ2 = J1(X) - J2(X);
+  // Slower, more accurate
+  J1.SetDifferentiationMethod(nyx::DifferentiationMethod::SecondOrderQuotient);
+  Eigen::MatrixXd diffJ3 = J1(X) - J2(X);
+
+  for (unsigned int i = 0; i < 2; ++i)
+  {
+    for (unsigned int j = 0; j < 2; ++j)
+    {
+      if (!nyx::IsEqual(diffJ1(i, j), 0.0, 1e-2))
+        nbrErr++;
+      if (!nyx::IsEqual(diffJ2(i, j), 0.0, 1e-3))
+        nbrErr++;
+      if (!nyx::IsEqual(diffJ3(i, j), 0.0, 1e-3))
         nbrErr++;
     }
   }

@@ -29,58 +29,11 @@
 #include "Function.h"
 #include "NumericalDiff.h"
 #include "NewtonRaphson.h"
+#include "CommonFunctions.h"
 #include "Tools.h"
 
 // STD
 #include <iostream>
-
-//-------------------------------------------------------------------------
-template <typename T>
-class NonLinearFunction : public nyx::Function<T>
-{
-public:
-  NonLinearFunction()
-    : nyx::Function<T>()
-  {
-    //
-  }
-
-  NonLinearFunction(unsigned int inDim, unsigned int outDim)
-    : nyx::Function<T>(inDim, outDim)
-  {
-    //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, 1> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
-  {
-    // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, 1> Y(this->outDim, 1);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
-
-    if (this->inDim != this->outDim)
-    {
-      std::cout << "error in: " << __func__ << " input and output dimension should match" << std::endl;
-      return Y;
-    }
-
-    Y(0) = std::pow(X(0) - 12.78, 3.0) * std::sqrt(X(0)) * std::cos(X(2) / 3.6 * nyx::pi / 2.0); // X(0) = 12.78 is root
-    Y(1) = std::pow(X(1) + 23.78, 2.0) * std::exp(X(1) / 1000.0) * std::log(-X(1)); // X(1) = -23.78 is root
-    Y(2) = std::pow(X(2) - 3.6, 2) * (std::sin(X(1) / 23.78 * nyx::pi / 2) - 1.0); // X(2) = 64.67 is root
-
-    return Y;
-  }
-
-protected:
-
-};
 
 //-------------------------------------------------------------------------
 int TestNewtonRaphsonMethod()
@@ -108,9 +61,13 @@ int TestNewtonRaphsonMethod()
 
   // Expected root
   Eigen::Matrix<double, 3, 1> Xs;
-  Xs << 12.78, -23.78, 64.67;
+  Xs << 12.78, -23.78, 3.6;
 
-  std::cout << "Xestimated: " << Xestimated.transpose() << std::endl;
+  for (unsigned int k = 0; k < 3; ++k)
+  {
+    if (!nyx::IsEqual<double>(Xs(k), Xestimated(k), 1e-3))
+      nbrErr++;
+  }
 
   if (nbrErr == 0)
   {

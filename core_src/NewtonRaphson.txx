@@ -47,9 +47,6 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> NewtonRaphson<F, J, T>::SolveEquation(Eigen:
   Eigen::Matrix<T, Eigen::Dynamic, 1> X = X0;
   while (this->ShouldIterate())
   {
-    std::cout << "X: " << X.transpose() << std::endl;
-    std::cout << "Jacobian: " << this->Jacobian(X) << std::endl;
-    std::cout << "Function: " << this->Function(X) << std::endl;
     X = X - this->Jacobian(X).inverse() * (this->Function(X) - Y);
   }
 

@@ -36,6 +36,9 @@ NumericalDiff<F, T>::NumericalDiff()
   // Update the input / output dimensions
   this->inDim = this->Function.GetInDim();
   this->outDim = this->Function.GetOutDim();
+  
+  // default method is symmetric quotient
+  this->Method = DifferentiationMethod::SymmetricQuotient;
 }
 
 //-------------------------------------------------------------------------
@@ -47,6 +50,9 @@ NumericalDiff<F, T>::NumericalDiff(F argFunction)
   // Update the input / output dimensions
   this->inDim = this->Function.GetInDim();
   this->outDim = this->Function.GetOutDim();
+
+  // default method is symmetric quotient
+  this->Method = DifferentiationMethod::SymmetricQuotient;
 }
 
 //-------------------------------------------------------------------------
@@ -80,8 +86,31 @@ void NumericalDiff<F, T>::ComputeJacobian(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
     Eigen::Matrix<T, Eigen::Dynamic, 1> dX(this->inDim);
     dX.setZero(); dX(partialDiffIndex) = this->h(partialDiffIndex);
 
-    this->Jacobian.col(partialDiffIndex) = (this->Function(X + dX) - this->Function(X - dX)) / (2.0 * this->h(partialDiffIndex));
+    // Compute the partial differentiation vector
+    Eigen::Matrix<T, Eigen::Dynamic, 1> partialDiffVector;
+    switch (this->Method)
+    {
+    case DifferentiationMethod::NewtonQuotient:
+      partialDiffVector = (this->Function(X + dX) - this->Function(X)) / this->h(partialDiffIndex);
+        break;       // and exits the switch
+    case DifferentiationMethod::SymmetricQuotient:
+      partialDiffVector = (this->Function(X + dX) - this->Function(X - dX)) / (2.0 * this->h(partialDiffIndex));
+      break;
+    case DifferentiationMethod::SecondOrderQuotient:
+      partialDiffVector = -this->Function(X+2.0*dX) + 8.0*this->Function(X+dX) - 8.0*this->Function(X-dX) + this->Function(X-2.0*dX);
+      partialDiffVector /= 12.0 * this->h(partialDiffIndex);
+      break;
+    }
+
+    this->Jacobian.col(partialDiffIndex) = partialDiffVector;
   }
+}
+
+//-------------------------------------------------------------------------
+template <typename F, typename T>
+void NumericalDiff<F, T>::SetDifferentiationMethod(DifferentiationMethod method)
+{
+  this->Method = method;
 }
 
 #endif // NUMERICAL_DIFF_TXX

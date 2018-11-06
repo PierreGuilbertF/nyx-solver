@@ -26,47 +26,12 @@
 
 // LOCAL
 #include "Function_test.h"
+#include "CommonFunctions.h"
 #include "Tools.h"
 
 // STD
 #include <cmath>
 #include <vector>
-
-//-------------------------------------------------------------------------
-template <typename T>
-class ParametricSphere : public nyx::Function<T>
-{
-public:
-  ParametricSphere(unsigned int inDim, unsigned int outDim)
-    : nyx::Function<T>(inDim, outDim)
-  {
-    //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, 1> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
-  {
-    // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, 1> Y(this->outDim, 1);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
-
-    // Explicit surface function of a sphere
-    // X(0) represents the azimutal angle
-    // X(1) represents the vertical angle
-    Y(0) = std::cos(X(0)) * std::sin(X(1));
-    Y(1) = std::sin(X(0)) * std::sin(X(1));
-    Y(2) = std::cos(X(1));
-
-    return Y;
-  }
-};
 
 //-------------------------------------------------------------------------
 unsigned int TestFunction()

@@ -44,7 +44,9 @@ int main(int argc, char *argv[])
   nbrErr += TestFunction();
 
   // Numerical Differentiation tests
-  nbrErr += AutomaticStepDiffTest();
+  nbrErr += NumericalDiffSquareRoot();
+  nbrErr += NumericalDiffEulerAngleMapping();
+  nbrErr += NumericalDiffMethods();
 
   // Newton Raphson methos tests
   nbrErr += TestNewtonRaphsonMethod();

@@ -37,6 +37,12 @@
 
 namespace nyx
 {
+  enum DifferentiationMethod
+  {
+    NewtonQuotient = 0,
+    SymmetricQuotient = 1,
+    SecondOrderQuotient = 2
+  };
   /**
   * \class NumericalDiff
   * \brief Compute Jacobian using numerical differantiation
@@ -103,6 +109,8 @@ namespace nyx
       this->ComputeJacobian(X);
       return this->Jacobian;
     }
+
+    void SetDifferentiationMethod(DifferentiationMethod method);
   protected:
     /// h values used to approximate the coordinate
     /// functions partial derivation using a determined
@@ -116,6 +124,12 @@ namespace nyx
     F Function; /// function from R^inDIm -> R^outDim
     unsigned int inDim; /// input dimension of F
     unsigned int outDim; /// output dimension of F
+
+    /// Differentiation method used to approximate
+    /// the jacobian of the function. An higher order
+    /// method means a more accurate approximation
+    /// but a longer processing time
+    DifferentiationMethod Method;
 
     /// Compute the approximated Jacobian
     void ComputeJacobian(Eigen::Matrix<T, Eigen::Dynamic, 1> X);

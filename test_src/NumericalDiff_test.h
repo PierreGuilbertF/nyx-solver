@@ -27,6 +27,8 @@
 #ifndef NUMERICAL_DIFF_TEST_H
 #define NUMERICAL_DIFF_TEST_H
 
-int AutomaticStepDiffTest();
+int NumericalDiffSquareRoot();
+int NumericalDiffEulerAngleMapping();
+int NumericalDiffMethods();
 
 #endif // NUMERICAL_DIFF_TEST_H
