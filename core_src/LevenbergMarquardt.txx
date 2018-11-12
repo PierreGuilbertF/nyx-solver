@@ -24,49 +24,16 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //=========================================================================
 
-// LOCAL
-#include "main_nyx_test.h"
-#include "Function_test.h"
-#include "NumericalDiff_test.h"
-#include "NewtonRaphson_test.h"
-#include "LevenbergMarquardt_test.h"
+#include "LevenbergMarquardt.h"
 
-// STD
-#include <iostream>
-
-// Eigen
-#include <Eigen/Dense>
+#ifndef LEVENBERG_MARQUARDT_TXX
+#define LEVENBERG_MARQUARDT_TXX
 
 //-------------------------------------------------------------------------
-int main(int argc, char *argv[])
+template <typename F, typename J, typename T>
+LevenbergMarquardt<F, J, T>::LevenbergMarquardt()
 {
-  int nbrErr = 0;
-
-  // Function tests
-  nbrErr += TestFunction();
-
-  // Numerical Differentiation tests
-  nbrErr += NumericalDiffSquareRoot();
-  nbrErr += NumericalDiffEulerAngleMapping();
-  nbrErr += NumericalDiffNonLinearFunction();
-  nbrErr += NumericalDiffMethods();
-
-  // Newton Raphson methos tests
-  nbrErr += TestNewtonRaphsonMethod();
-
-  // Levenberg-Marquardt tests
-  nbrErr += TestLevenbergMarquardtCosineFunction();
-
-  if (nbrErr == 0)
-  {
-    std::cout << __func__ << " SUCCEEDED" << std::endl;
-    return EXIT_SUCCESS;
-  }
-  else
-  {
-    std::cout << __func__ << " FAILED, nbrErr: " << nbrErr << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  return EXIT_SUCCESS;
+  std::cout << "Hello" << std::endl;
 }
+
+#endif // LEVENBERG_MARQUARDT_TXX

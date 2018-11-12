@@ -27,6 +27,9 @@
 #ifndef COMMON_FUNCTIONS_H
 #define COMMON_FUNCTIONS_H
 
+//STD
+#include <vector>
+
 // LOCAL
 #include "Function.h"
 #include "Tools.h"
@@ -442,6 +445,118 @@ public:
 
 protected:
 
+};
+
+//-------------------------------------------------------------------------
+template <typename T>
+class NonLinearFunction2 : public nyx::Function<T>
+{
+public:
+  NonLinearFunction2()
+    : nyx::Function<T>(1, 1)
+  {
+    this->W.resize(6, 0);
+    this->W[0] = 5.0;
+    this->W[1] = 0.8;
+    this->W[2] = 1.45;
+    this->W[3] = 0.45;
+    this->W[4] = 8.85;
+    this->W[5] = 0.10;
+  }
+
+  Eigen::Matrix<T, 1, 1> operator()(Eigen::Matrix<T, 1, 1> X)
+  {
+    // init output and set all values to zero
+    Eigen::Matrix<T, 1, 1> Y(this->outDim, 1);
+    Y.setZero();
+
+    // Check dimensions consistency
+    if (X.rows() != this->inDim)
+    {
+      std::cout << "error in: " << __func__ << " expected vector of dim: "
+        << this->inDim << " got dim: " << X.rows() << std::endl;
+      return Y;
+    }
+
+    // parametric function
+    Y(0) = W[0] * std::exp(-std::pow(X(0) - W[1], 2) / (2.0 * W[2])) + W[3] * std::cos(W[4] * X(0)) + W[5] * std::pow(X(0), 2);
+
+    return Y;
+  }
+
+  std::vector<T> W;
+};
+
+//-------------------------------------------------------------------------
+template <typename T>
+class NonLinearFunction2Parameters : public nyx::Function<T>
+{
+public:
+  NonLinearFunction2Parameters()
+    : nyx::Function<T>(6, 1)
+  {
+    this->X.resize(1, 0);
+  }
+
+  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, 6, 1> W)
+  {
+    // init output and set all values to zero
+    Eigen::Matrix<T, 1, 1> Y(this->outDim, this->inDim);
+    Y.setZero();
+
+    // Check dimensions consistency
+    if (W.rows() != this->inDim)
+    {
+      std::cout << "error in: " << __func__ << " expected vector of dim: "
+        << this->inDim << " got dim: " << W.rows() << std::endl;
+      return Y;
+    }
+
+    // parametric function
+    Y(0) = W(0) * std::exp(-std::pow(X[0] - W(1), 2) / (2.0 * W(2))) + W(3) * std::cos(W(4) * X[0]) + W(5) * std::pow(X[0], 2);
+
+    return Y;
+  }
+
+  std::vector<T> X;
+};
+
+//-------------------------------------------------------------------------
+template <typename T>
+class NonLinearFunction2ParametersJacobian : public nyx::Function<T>
+{
+public:
+  NonLinearFunction2ParametersJacobian()
+    : nyx::Function<T>(6, 1)
+  {
+    this->X.resize(1, 0);
+  }
+
+  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> W)
+  {
+    // init output and set all values to zero
+    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Y(1, 6);
+    Y.setZero();
+
+    // Check dimensions consistency
+    if (W.rows() != this->inDim)
+    {
+      std::cout << "error in: " << __func__ << " expected vector of dim: "
+        << this->inDim << " got dim: " << W.rows() << std::endl;
+      return Y;
+    }
+
+    Y(0) = std::exp(-std::pow(X[0] - W[1], 2) / (2.0 * W[2])); // df / dw0
+    Y(1) = W[0] * (X[0] - W[1]) / W[2] * std::exp(-std::pow(X[0] - W[1], 2) / (2.0 * W[2])); // df / dw1
+    Y(2) = W[0] * std::pow(X[0] - W[1], 2) / (2.0 * W[2] * W[2]) * std::exp(-std::pow(X[0] - W[1], 2) / (2.0 * W[2])); // df / dw2
+    Y(3) = std::cos(W[4] * X[0]); // df / dw3
+    Y(4) = -W[3] * X[0] * std::sin(W[4] * X[0]); // df / dw4
+    Y(5) = X[0] * X[0];
+
+    return Y;
+  }
+
+  std::vector<T> X;
 };
 
 #endif // COMMON_FUNCTIONS_H

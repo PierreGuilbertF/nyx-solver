@@ -29,6 +29,7 @@
 
 int NumericalDiffSquareRoot();
 int NumericalDiffEulerAngleMapping();
+int NumericalDiffNonLinearFunction();
 int NumericalDiffMethods();
 
 #endif // NUMERICAL_DIFF_TEST_H
