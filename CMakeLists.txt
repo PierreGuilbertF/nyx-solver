@@ -36,10 +36,12 @@ set(nyx_tests_sources ${nyx_tests_folder}/main_nyx_test.cxx
 					  ${nyx_tests_folder}/Function_test.cxx
                       ${nyx_tests_folder}/NumericalDiff_test.cxx
 					  ${nyx_tests_folder}/NewtonRaphson_test.cxx
+					  ${nyx_tests_folder}/LevenbergMarquardt_test.cxx
 					  ${nyx_tests_folder}/Jacobian_test.cxx
 					  ${nyx_core_folder}/Function.txx
                       ${nyx_core_folder}/NumericalDiff.txx
 					  ${nyx_core_folder}/NewtonRaphson.txx
+					  ${nyx_core_folder}/LevenbergMarquardt.txx
 					  ${nyx_core_folder}/Jacobian.txx)
 
 # required include directories

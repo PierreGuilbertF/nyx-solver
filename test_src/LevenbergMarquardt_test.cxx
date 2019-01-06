@@ -24,53 +24,61 @@
 // POSSIBILITY OF SUCH DAMAGE.
 //=========================================================================
 
-// LOCAL
-#include "main_nyx_test.h"
-#include "Function_test.h"
-#include "Jacobian_test.h"
-#include "NumericalDiff_test.h"
-#include "NewtonRaphson_test.h"
-#include "LevenbergMarquardt_test.h"
-
 // STD
+#include <fstream>
 #include <iostream>
 
-// Eigen
-#include <Eigen/Dense>
+// LOCAL
+#include "LevenbergMarquardt_test.h"
+#include "LevenbergMarquardt.h"
+#include "CommonFunctions.h"
+#include "Tools.h"
 
 //-------------------------------------------------------------------------
-int main(int argc, char *argv[])
+int TestLevenbergMarquardtCosineFunction()
 {
-  int nbrErr = 0;
+  unsigned int nbrErr = 0;
 
-  // Function tests
-  nbrErr += TestFunction();
+  // file to export samples
+  std::ofstream file;
+  file.open("samplesData.csv");
+  if (!file.is_open())
+  {
+    return 1; // return with error
+  }
+  file << "X, F(X)," << std::endl;
 
-  // Jacobian tests
-  nbrErr += TestJacobian();
+  // Non linear function to create the samples data
+  NonLinearFunction2<double> F;
 
-  // Numerical Differentiation tests
-  nbrErr += NumericalDiffSquareRoot();
-  nbrErr += NumericalDiffEulerAngleMapping();
-  nbrErr += NumericalDiffNonLinearFunction();
-  nbrErr += NumericalDiffMethods();
+  // Create samples data
+  unsigned int Nsamples = 500;
+  double xmin = -5.0;
+  double xmax = 5.0;
+  double dx = (xmax - xmin) / static_cast<double>(Nsamples);
+  std::vector<Eigen::Matrix<double, 1, 1> > X, Y;
+  for (unsigned int k = 0; k < Nsamples; ++k)
+  {
+    Eigen::Matrix<double, 1, 1> x;
+    x(0) = xmin + static_cast<double>(k) * dx;
+    Eigen::Matrix<double, 1, 1> y = F(x);
 
-  // Newton Raphson methos tests
-  nbrErr += TestNewtonRaphsonMethod();
+    X.push_back(x);
+    Y.push_back(y);
+  }
 
-  // Levenberg-Marquardt tests
-  nbrErr += TestLevenbergMarquardtCosineFunction();
+  for (unsigned int k = 0; k < X.size(); ++k)
+  {
+    file << X[k] << "," << Y[k] << "," << std::endl;
+  }
 
   if (nbrErr == 0)
   {
-    std::cout << __func__ << " SUCCEEDED" << std::endl;
-    return EXIT_SUCCESS;
+    std::cout << "Test: " << __func__ << " SUCCEEDED" << std::endl;
   }
   else
   {
-    std::cout << __func__ << " FAILED, nbrErr: " << nbrErr << std::endl;
-    return EXIT_FAILURE;
+    std::cout << "Test: " << __func__ << " FAILED" << std::endl;
   }
-
-  return EXIT_SUCCESS;
+  return nbrErr;
 }

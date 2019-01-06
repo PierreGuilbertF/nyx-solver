@@ -114,6 +114,45 @@ int NumericalDiffEulerAngleMapping()
   return nbrErr;
 }
 
+//-------------------------------------------------------------------------
+int NumericalDiffNonLinearFunction()
+{
+  unsigned int nbrErr = 0;
+
+  Eigen::Matrix<double, 1, 1> X;
+  X(0) = 0.78;
+  Eigen::Matrix<double,6 , 1> W;
+  W << 5.0, 0.8, 1.45, 0.45, 8.85, 0.10;
+  NonLinearFunction2Parameters<double> f;
+  f.X[0] = X(0);
+  nyx::NumericalDiff<NonLinearFunction2Parameters<double>, double> J1(f);
+  NonLinearFunction2ParametersJacobian<double> J2;
+  J2.X[0] = X(0);
+
+  //
+  Eigen::MatrixXd diffJ = J1(W) - J2(W);
+
+  for (unsigned int i = 0; i < 2; ++i)
+  {
+    for (unsigned int j = 0; j < 2; ++j)
+    {
+      if (!nyx::IsEqual(diffJ(i, j), 0.0, 1e-7))
+        nbrErr++;
+    }
+  }
+
+  if (nbrErr == 0)
+  {
+    std::cout << "Test: " << __func__ << " SUCCEEDED" << std::endl;
+  }
+  else
+  {
+    std::cout << "Test: " << __func__ << " FAILED" << std::endl;
+  }
+  return nbrErr;
+}
+
+//-------------------------------------------------------------------------
 int NumericalDiffMethods()
 {
   unsigned int nbrErr = 0;
