@@ -25,46 +25,41 @@
 //=========================================================================
 
 // LOCAL
-#include "main_nyx_test.h"
-#include "Function_test.h"
-#include "Jacobian_test.h"
-#include "NumericalDiff_test.h"
-#include "NewtonRaphson_test.h"
+#include "Jacobian.h"
 
-// STD
-#include <iostream>
+#ifndef JACOBIAN_TXX
+#define JACOBIAN_TXX
 
-// Eigen
-#include <Eigen/Dense>
-
-int main(int argc, char *argv[])
+//-------------------------------------------------------------------------
+template <typename T>
+Jacobian<T>::Jacobian()
 {
-  int nbrErr = 0;
-
-  // Function tests
-  nbrErr += TestFunction();
-
-  // Jacobian tests
-  nbrErr += TestJacobian();
-
-  // Numerical Differentiation tests
-  nbrErr += NumericalDiffSquareRoot();
-  nbrErr += NumericalDiffEulerAngleMapping();
-  nbrErr += NumericalDiffMethods();
-
-  // Newton Raphson methos tests
-  nbrErr += TestNewtonRaphsonMethod();
-
-  if (nbrErr == 0)
-  {
-    std::cout << __func__ << " SUCCEEDED" << std::endl;
-    return EXIT_SUCCESS;
-  }
-  else
-  {
-    std::cout << __func__ << " FAILED, nbrErr: " << nbrErr << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  return EXIT_SUCCESS;
+  // default R -> R function differential
+  this->inDim = 1;
+  this->outDim = 1;
 }
+
+//-------------------------------------------------------------------------
+template <typename T>
+Jacobian<T>::Jacobian(unsigned int argInDim, unsigned int argOutDim)
+{
+  // R^inDim -> R^outDim function differential
+  this->inDim = argInDim;
+  this->outDim = argOutDim;
+}
+
+//-------------------------------------------------------------------------
+template <typename T>
+unsigned int Jacobian<T>::GetInDim()
+{
+  return this->inDim;
+}
+
+//-------------------------------------------------------------------------
+template <typename T>
+unsigned int Jacobian<T>::GetOutDim()
+{
+  return this->outDim;
+}
+
+#endif // JACOBIAN_TXX

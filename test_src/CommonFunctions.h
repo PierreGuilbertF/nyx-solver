@@ -29,6 +29,7 @@
 
 // LOCAL
 #include "Function.h"
+#include "Jacobian.h"
 #include "Tools.h"
 
 //-------------------------------------------------------------------------
@@ -62,6 +63,113 @@ public:
     Y(0) = std::cos(X(0)) * std::sin(X(1));
     Y(1) = std::sin(X(0)) * std::sin(X(1));
     Y(2) = std::cos(X(1));
+
+    return Y;
+  }
+};
+
+//-------------------------------------------------------------------------
+template <typename T>
+class ParametricSphereJacobian : public nyx::Jacobian<T>
+{
+public:
+  ParametricSphereJacobian(unsigned int inDim, unsigned int outDim)
+        : nyx::Jacobian<T>(inDim, outDim)
+  {
+      //
+  }
+
+  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+  {
+    // init output and set all values to zero
+    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Y(this->outDim, this->inDim);
+    Y.setZero();
+
+    // Check dimensions consistency
+    if (X.rows() != this->inDim)
+    {
+      std::cout << "error in: " << __func__ << " expected vector of dim: "
+          << this->inDim << " got dim: " << X.rows() << std::endl;
+      return Y;
+    }
+
+    // Explicit surface function differential of a sphere
+    // X(0) represents the azimutal angle
+    // X(1) represents the vertical angle
+    Y(0, 0) = -std::sin(X(0)) * std::sin(X(1)); // DY0 / DX0
+    Y(0, 1) = std::cos(X(0)) * std::cos(X(1)); // DY0 / DX1
+
+    Y(1, 0) = std::cos(X(0)) * std::sin(X(1)); // DY1 / DX0
+    Y(1, 1) = std::sin(X(0)) * std::cos(X(1)); // DY1 / DX1
+
+    Y(2, 0) = 0; // DY1 / DX0
+    Y(2, 1) = -std::sin(X(1)); // DY1 / DX1
+
+    return Y;
+  }
+};
+
+//-------------------------------------------------------------------------
+template <typename T>
+class ImplicitSphere : public nyx::Function<T>
+{
+public:
+  ImplicitSphere(unsigned int inDim, unsigned int outDim)
+    : nyx::Function<T>(inDim, outDim)
+  {
+    //
+  }
+
+  Eigen::Matrix<T, Eigen::Dynamic, 1> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+  {
+    // init output and set all values to zero
+    Eigen::Matrix<T, Eigen::Dynamic, 1> Y(this->outDim, 1);
+    Y.setZero();
+
+    // Check dimensions consistency
+    if (X.rows() != this->inDim)
+    {
+      std::cout << "error in: " << __func__ << " expected vector of dim: "
+        << this->inDim << " got dim: " << X.rows() << std::endl;
+      return Y;
+    }
+
+    // Implicit surface function of a sphere
+    Y(0) = std::sqrt(X(0)*X(0) + X(1)*X(1) + X(2)*X(2));
+
+    return Y;
+  }
+};
+
+//-------------------------------------------------------------------------
+template <typename T>
+class ImplicitSphereJacobian : public nyx::Jacobian<T>
+{
+public:
+  ImplicitSphereJacobian(unsigned int inDim, unsigned int outDim)
+    : nyx::Jacobian<T>(inDim, outDim)
+  {
+    //
+  }
+
+  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+  {
+    // init output and set all values to zero
+    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Y(this->outDim, this->inDim);
+    Y.setZero();
+
+    // Check dimensions consistency
+    if (X.rows() != this->inDim)
+    {
+      std::cout << "error in: " << __func__ << " expected vector of dim: "
+        << this->inDim << " got dim: " << X.rows() << std::endl;
+      return Y;
+    }
+
+    // Implicit surface function differential of a sphere
+    Y(0, 0) = X(0) / std::sqrt(X(0)*X(0) + X(1)*X(1) + X(2)*X(2)); // DY0 / DX0
+    Y(0, 1) = X(1) / std::sqrt(X(0)*X(0) + X(1)*X(1) + X(2)*X(2)); // DY0 / DX1
+    Y(0, 2) = X(2) / std::sqrt(X(0)*X(0) + X(1)*X(1) + X(2)*X(2)); // DY0 / DX2
 
     return Y;
   }

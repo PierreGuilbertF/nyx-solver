@@ -43,6 +43,7 @@ Function<T>::Function()
 template <typename T>
 Function<T>::Function(unsigned int argInDim, unsigned int argOutDim)
 {
+    // R^inDim -> R^outDim function
   this->inDim = argInDim;
   this->outDim = argOutDim;
 }
