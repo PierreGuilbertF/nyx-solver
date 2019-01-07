@@ -27,6 +27,7 @@
 // LOCAL
 #include "Jacobian_test.h"
 #include "CommonFunctions.h"
+#include "CommonJacobians.h"
 #include "Tools.h"
 
 // STD
@@ -38,15 +39,17 @@ unsigned int TestJacobian()
 {
   unsigned int nbrErr = 0;
 
-  // instanciate sphere mapping function
-  ParametricSphere<double> sphere(2, 3);
-  ParametricSphereJacobian<double> sphereJ(2, 3);
-  ImplicitSphere<double> potential(3, 1);
-  ImplicitSphereJacobian<double> potentialJ(3, 1);
+  // in this test we propose to compute the normal of the 2-sphere
+  // of radius 1 using 2 methods:
+  // - First by using an explicit parametrization of the 2-sphere, computing its
+  //   tangent plane and taking the normal of the tangent plane
+  // - Secondly, by using an implicit parametrization of the 2-sphere and computing
+  //   the gradient of the potential function at the desired point.
 
-  // check dimensions
-  if ((sphereJ.GetInDim() != 2) || (sphereJ.GetOutDim() != 3))
-    nbrErr++;
+  // instanciate sphere mapping function
+  ParametricSphere<double> explicitSphere;
+  ParametricSphereJacobian<double> explicitSphereJ;
+  ImplicitSphereJacobian<double> implicitSphereJ;
 
   // Points to check
   std::vector<Eigen::Matrix<double, 2, 1> > points;
@@ -58,11 +61,11 @@ unsigned int TestJacobian()
   for (unsigned int k = 0; k < points.size(); ++k)
   {
     // parametric sphere jacobian calculous
-    Eigen::Matrix<double, 3, 1> X = sphere(points[k]);
-    Eigen::Matrix<double, 3, 2> J = sphereJ(points[k]);
+    Eigen::Matrix<double, 3, 1> X = explicitSphere(points[k]);
+    Eigen::Matrix<double, 3, 2> J = explicitSphereJ(points[k]);
 
     // implicit sphere jacobian calculous
-    Eigen::Matrix<double, 1, 3> Jexpl = potentialJ(X);
+    Eigen::Matrix<double, 1, 3> Jexpl = implicitSphereJ(X);
 
     Eigen::Matrix<double, 3, 1> n1 = (Jexpl / Jexpl.norm()).transpose();
     Eigen::Matrix<double, 3, 1> n2 = J.col(0).cross(J.col(1)) / (J.col(0).cross(J.col(1))).norm();

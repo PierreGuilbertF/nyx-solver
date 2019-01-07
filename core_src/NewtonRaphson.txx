@@ -45,9 +45,20 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> NewtonRaphson<F, J, T>::SolveEquation(Eigen:
                                                                           Eigen::Matrix<T, Eigen::Dynamic, 1> X0)
 {
   Eigen::Matrix<T, Eigen::Dynamic, 1> X = X0;
+  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> J;
+
   while (this->ShouldIterate())
   {
-    X = X - this->Jacobian(X).inverse() * (this->Function(X) - Y);
+    // Evaluate the Jacobian at the current point
+    // and check if the jacobian is singular
+    J = this->Jacobian(X);
+    if (std::abs(J.determinant()) < 1e-16)
+    {
+      //std::cout << "NewtonRaphson: Jacobian singular, iterations stopped" << std::endl;
+      break;
+    }
+
+    X = X - J.inverse() * (this->Function(X) - Y);
   }
 
   return X;
@@ -58,7 +69,12 @@ template <typename F, typename J, typename T>
 bool NewtonRaphson<F, J, T>::ShouldIterate()
 {
   this->NbrIterationMade++;
-  return this->NbrIterationMade <= this->MaxIteration;
+
+  // Stop iterations if:
+  // - Maximum number of iteration has been reached
+  bool shouldIterate = (this->NbrIterationMade <= this->MaxIteration);
+
+  return shouldIterate;
 }
 
 #endif // NEWTON_RAPHSON_TXX

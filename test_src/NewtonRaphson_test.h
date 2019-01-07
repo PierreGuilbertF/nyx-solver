@@ -28,5 +28,6 @@
 #define NEWTON_RAPHSON_TEST_H
 
 int TestNewtonRaphsonMethod();
+int TestNewtonRaphsonMethod2();
 
 #endif // NEWTON_RAPHSON_TEST_H

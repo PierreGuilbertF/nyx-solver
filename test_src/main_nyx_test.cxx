@@ -57,9 +57,10 @@ int main(int argc, char *argv[])
 
   // Newton Raphson methos tests
   nbrErr += TestNewtonRaphsonMethod();
+  nbrErr += TestNewtonRaphsonMethod2();
 
   // Levenberg-Marquardt tests
-  nbrErr += TestLevenbergMarquardtCosineFunction();
+  //nbrErr += TestLevenbergMarquardtCosineFunction();
 
   if (nbrErr == 0)
   {

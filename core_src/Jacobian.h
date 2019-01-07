@@ -62,30 +62,18 @@ namespace nyx
   * \date $Date: 02-11-2018 $
   * Contact: spguilbert@gmail.com
   */
-  template <typename T>
+  template <typename T, unsigned int N, unsigned int M>
   class Jacobian
   {
   public:
     /// default constructor of the function
     Jacobian();
 
-    /// constructor of the function
-    Jacobian(unsigned int argInDim, unsigned int argOutDim);
-
     /// Evaluate the function at the point X
-    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+    virtual Eigen::Matrix<T, M, N> operator()(Eigen::Matrix<T, N, 1> X)
     {
       // init output and set all values to zero
-      Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Y(this->outDim, this->inDim);
-      Y.setZero();
-
-      // Check dimensions consistency
-      if (X.rows() != this->inDim)
-      {
-        std::cout << "error in: " << __func__ << " expected vector of dim: "
-            << this->inDim << " got dim: " << X.rows() << std::endl;
-        return Y;
-      }
+      Eigen::Matrix<T, M, N> Y = Eigen::Matrix<T, M, N>::Zero();
 
       return Y;
     }
@@ -93,11 +81,6 @@ namespace nyx
     /// Get in / out dimensions
     unsigned int GetInDim();
     unsigned int GetOutDim();
-
-  protected:
-    /// input and output dimensions of F
-    unsigned int inDim;
-    unsigned int outDim;
   };
 
   // methods implementation

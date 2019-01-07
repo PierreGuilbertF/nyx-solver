@@ -31,35 +31,23 @@
 #define FUNCTION_TXX
 
 //-------------------------------------------------------------------------
-template <typename T>
-Function<T>::Function()
+template <typename T, unsigned int N, unsigned int M>
+Function<T, N, M>::Function()
 {
-  // default R -> R function
-  this->inDim = 1;
-  this->outDim = 1;
 }
 
 //-------------------------------------------------------------------------
-template <typename T>
-Function<T>::Function(unsigned int argInDim, unsigned int argOutDim)
+template <typename T, unsigned int N, unsigned int M>
+unsigned int Function<T, N, M>::GetInDim()
 {
-    // R^inDim -> R^outDim function
-  this->inDim = argInDim;
-  this->outDim = argOutDim;
+  return N;
 }
 
 //-------------------------------------------------------------------------
-template <typename T>
-unsigned int Function<T>::GetInDim()
+template <typename T, unsigned int N, unsigned int M>
+unsigned int Function<T, N, M>::GetOutDim()
 {
-  return this->inDim;
-}
-
-//-------------------------------------------------------------------------
-template <typename T>
-unsigned int Function<T>::GetOutDim()
-{
-  return this->outDim;
+  return M;
 }
 
 #endif // FUNCTION_TXX

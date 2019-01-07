@@ -27,6 +27,7 @@
 // LOCAL
 #include "Function_test.h"
 #include "CommonFunctions.h"
+#include "CommonJacobians.h"
 #include "Tools.h"
 
 // STD
@@ -39,7 +40,7 @@ unsigned int TestFunction()
   unsigned int nbrErr = 0;
 
   // instanciate sphere mapping function
-  ParametricSphere<double> sphere(2, 3);
+  ParametricSphere<double> sphere;
 
   // check dimensions
   if ((sphere.GetInDim() != 2) || (sphere.GetOutDim() != 3))

@@ -37,28 +37,13 @@
 
 //-------------------------------------------------------------------------
 template <typename T>
-class ParametricSphere : public nyx::Function<T>
+class ParametricSphere : public nyx::Function<T, 2, 3>
 {
 public:
-  ParametricSphere(unsigned int inDim, unsigned int outDim)
-    : nyx::Function<T>(inDim, outDim)
-  {
-    //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, 1> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+  Eigen::Matrix<T, 3, 1> operator()(Eigen::Matrix<T, 2, 1> X)
   {
     // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, 1> Y(this->outDim, 1);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
+    Eigen::Matrix<T, 3, 1> Y = Eigen::Matrix<T, 3, 1>::Zero();
 
     // Explicit surface function of a sphere
     // X(0) represents the azimutal angle
@@ -73,69 +58,13 @@ public:
 
 //-------------------------------------------------------------------------
 template <typename T>
-class ParametricSphereJacobian : public nyx::Jacobian<T>
+class ImplicitSphere : public nyx::Function<T, 3, 1>
 {
 public:
-  ParametricSphereJacobian(unsigned int inDim, unsigned int outDim)
-        : nyx::Jacobian<T>(inDim, outDim)
-  {
-      //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+  Eigen::Matrix<T, 1, 1> operator()(Eigen::Matrix<T, 3, 1> X)
   {
     // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Y(this->outDim, this->inDim);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-          << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
-
-    // Explicit surface function differential of a sphere
-    // X(0) represents the azimutal angle
-    // X(1) represents the vertical angle
-    Y(0, 0) = -std::sin(X(0)) * std::sin(X(1)); // DY0 / DX0
-    Y(0, 1) = std::cos(X(0)) * std::cos(X(1)); // DY0 / DX1
-
-    Y(1, 0) = std::cos(X(0)) * std::sin(X(1)); // DY1 / DX0
-    Y(1, 1) = std::sin(X(0)) * std::cos(X(1)); // DY1 / DX1
-
-    Y(2, 0) = 0; // DY1 / DX0
-    Y(2, 1) = -std::sin(X(1)); // DY1 / DX1
-
-    return Y;
-  }
-};
-
-//-------------------------------------------------------------------------
-template <typename T>
-class ImplicitSphere : public nyx::Function<T>
-{
-public:
-  ImplicitSphere(unsigned int inDim, unsigned int outDim)
-    : nyx::Function<T>(inDim, outDim)
-  {
-    //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, 1> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
-  {
-    // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, 1> Y(this->outDim, 1);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
+    Eigen::Matrix<T, 1, 1> Y = Eigen::Matrix<T, 1, 1>::Zero();
 
     // Implicit surface function of a sphere
     Y(0) = std::sqrt(X(0)*X(0) + X(1)*X(1) + X(2)*X(2));
@@ -145,124 +74,34 @@ public:
 };
 
 //-------------------------------------------------------------------------
-template <typename T>
-class ImplicitSphereJacobian : public nyx::Jacobian<T>
+template <typename T, unsigned int N>
+class SquareRoot : public nyx::Function<T, N, N>
 {
 public:
-  ImplicitSphereJacobian(unsigned int inDim, unsigned int outDim)
-    : nyx::Jacobian<T>(inDim, outDim)
-  {
-    //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+  Eigen::Matrix<T, N, 1> operator()(Eigen::Matrix<T, N, 1> X)
   {
     // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Y(this->outDim, this->inDim);
+    Eigen::Matrix<T, N, 1> Y = Eigen::Matrix<T, N, 1>::Zero();
     Y.setZero();
 
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
-
-    // Implicit surface function differential of a sphere
-    Y(0, 0) = X(0) / std::sqrt(X(0)*X(0) + X(1)*X(1) + X(2)*X(2)); // DY0 / DX0
-    Y(0, 1) = X(1) / std::sqrt(X(0)*X(0) + X(1)*X(1) + X(2)*X(2)); // DY0 / DX1
-    Y(0, 2) = X(2) / std::sqrt(X(0)*X(0) + X(1)*X(1) + X(2)*X(2)); // DY0 / DX2
-
-    return Y;
-  }
-};
-
-//-------------------------------------------------------------------------
-template <typename T>
-class SquareRoot : public nyx::Function<T>
-{
-public:
-  SquareRoot()
-    : nyx::Function<T>()
-  {
-    //
-  }
-
-  SquareRoot(unsigned int inDim, unsigned int outDim)
-    : nyx::Function<T>(inDim, outDim)
-  {
-    //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, 1> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
-  {
-    // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, 1> Y(this->outDim, 1);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
-
-    if (this->inDim != this->outDim)
-    {
-      std::cout << "error in: " << __func__ << " input and output dimension should match" << std::endl;
-      return Y;
-    }
-
-    for (unsigned int k = 0; k < this->outDim; ++k)
+    for (unsigned int k = 0; k < N; ++k)
     {
       Y(k) = std::sqrt(X(k));
     }
 
     return Y;
   }
-
-protected:
-
 };
 
 //-------------------------------------------------------------------------
 template <typename T>
-class NonLinearFunction : public nyx::Function<T>
+class NonLinearFunction : public nyx::Function<T, 3, 3>
 {
 public:
-  NonLinearFunction()
-    : nyx::Function<T>()
-  {
-    //
-  }
-
-  NonLinearFunction(unsigned int inDim, unsigned int outDim)
-    : nyx::Function<T>(inDim, outDim)
-  {
-    //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, 1> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+  Eigen::Matrix<T, 3, 1> operator()(Eigen::Matrix<T, 3, 1> X)
   {
     // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, 1> Y(this->outDim, 1);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
-
-    if (this->inDim != this->outDim)
-    {
-      std::cout << "error in: " << __func__ << " input and output dimension should match" << std::endl;
-      return Y;
-    }
+    Eigen::Matrix<T, 3, 1> Y = Eigen::Matrix<T, 3, 1>::Zero();
 
     Y(0) = std::pow(X(0) - 12.78, 3.0) * X(1) * X(2); // X(0) = 12.78 is root
     Y(1) = std::pow(X(1) + 23.78, 2.0) * std::exp(X(1) / 1000.0) * std::log(-X(1)); // X(1) = -23.78 is root
@@ -270,9 +109,6 @@ public:
 
     return Y;
   }
-
-protected:
-
 };
 
 /**
@@ -317,40 +153,13 @@ protected:
 * Contact: spguilbert@gmail.com
 */
 template <typename T>
-class EulerAngleSO3Mapping : public nyx::Function<T>
+class EulerAngleSO3Mapping : public nyx::Function<T, 3, 9>
 {
 public:
-  EulerAngleSO3Mapping()
-    : nyx::Function<T>(3, 9)
-  {
-    //
-  }
-
-  EulerAngleSO3Mapping(unsigned int inDim, unsigned int outDim)
-    : nyx::Function<T>(inDim, outDim)
-  {
-    //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, 1> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+  Eigen::Matrix<T, 9, 1> operator()(Eigen::Matrix<T, 3, 1> X)
   {
     // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, 1> Y(this->outDim, 1);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
-
-    if ((this->inDim != 3) || (this->outDim != 9))
-    {
-      std::cout << "error in: " << __func__ << " inDim should be 3 and outDim should be 9" << std::endl;
-      return Y;
-    }
+    Eigen::Matrix<T, 9, 1> Y = Eigen::Matrix<T, 9, 1>::Zero();
 
     double crx = std::cos(X(0)); double srx = std::sin(X(0));
     double cry = std::cos(X(1)); double sry = std::sin(X(1));
@@ -371,197 +180,32 @@ public:
 
     return Y;
   }
-
-protected:
-
-};
-
-template <typename T>
-class EulerAngleSO3MappingJacobian : public nyx::Function<T>
-{
-public:
-  EulerAngleSO3MappingJacobian()
-    : nyx::Function<T>(3, 9)
-  {
-    //
-  }
-
-  EulerAngleSO3MappingJacobian(unsigned int inDim, unsigned int outDim)
-    : nyx::Function<T>(inDim, outDim)
-  {
-    //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
-  {
-    // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Y(this->outDim, this->inDim);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
-
-    if ((this->inDim != 3))
-    {
-      std::cout << "error in: " << __func__ << " inDim should be 3" << std::endl;
-      return Y;
-    }
-
-    double crx = std::cos(X(0)); double srx = std::sin(X(0));
-    double cry = std::cos(X(1)); double sry = std::sin(X(1));
-    double crz = std::cos(X(2)); double srz = std::sin(X(2));
-
-    Y(0, 0) = 0; // dR11 /  drx
-    Y(0, 1) = -sry * crz; // dR11 / dry
-    Y(0, 2) = -srz * cry; // dR12 / drz
-
-    Y(1, 0) = srz * srx + crz * sry * crx; // dR12 / drx
-    Y(1, 1) = crz * cry * srx; // dR12 / dry
-    Y(1, 2) = -crz * crx - srz * sry * srx; // dR12 / drz
-
-    Y(2, 0) = srz * crx - crz * sry * srx; // dR13 / drx
-    Y(2, 1) = crz * cry * crx; // dR13 / dry
-    Y(2, 2) = crz * srx - srz * sry * crx; // dR13 / drz
-
-    Y(3, 0) = 0; // dR21 / drx
-    Y(3, 1) = -srz * sry; // dR21 / dry
-    Y(3, 2) = crz * cry; // dR21 / drz
-
-    Y(4, 0) = -crz * srx + srz * sry * crx; // dR22 / drx
-    Y(4, 1) = srz * cry * srx; // dR22 / dry
-    Y(4, 2) = -srz * crx + crz * sry * srx; // dR22 / drz
-
-    Y(5, 0) = -crz * crx - srz * sry * srx; // dR23 / drx
-    Y(5, 1) = srz * cry * crx; // dR23 / dry
-    Y(5, 2) = srz * srx + crz * sry * crx; // dR23 / drz
-
-    Y(6, 0) = 0; // dR31 / drx
-    Y(6, 1) = -cry; // dR31 / dry
-    Y(6, 2) = 0; // dR31 / drz
-
-    Y(7, 0) = cry * crx; // dR32 / drx
-    Y(7, 1) = -sry * srx; // dR32 / dry
-    Y(7, 2) = 0; // dR32 / drz;
-
-    Y(8, 0) = -cry * srx; // dR33 / drx
-    Y(8, 1) = -sry * crx; // dR33 / dry
-    Y(8, 2) = 0; // dR33 / drz
-
-    return Y;
-  }
-
-protected:
-
 };
 
 //-------------------------------------------------------------------------
 template <typename T>
-class MultiVarPolynomial : public nyx::Function<T>
+class MultiVarPolynomial : public nyx::Function<T, 2, 2>
 {
 public:
-  MultiVarPolynomial()
-    : nyx::Function<T>(2, 2)
-  {
-    //
-  }
-
-  MultiVarPolynomial(unsigned int inDim, unsigned int outDim)
-    : nyx::Function<T>(inDim, outDim)
-  {
-    //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, 1> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
+  Eigen::Matrix<T, 2, 1> operator()(Eigen::Matrix<T, 2, 1> X)
   {
     // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, 1> Y(this->outDim, 1);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
-
-    if (this->inDim != this->outDim)
-    {
-      std::cout << "error in: " << __func__ << " input and output dimension should match" << std::endl;
-      return Y;
-    }
+    Eigen::Matrix<T, 2, 1> Y = Eigen::Matrix<T, 2, 1>::Zero();
 
     Y(0) = std::pow(X(0), 3) * std::sqrt(X(1));
     Y(1) = std::pow(X(0), 2) * std::pow(X(1), 3);
 
     return Y;
   }
-
-protected:
-
 };
 
 //-------------------------------------------------------------------------
 template <typename T>
-class MultiVarPolynomialJacobian : public nyx::Function<T>
-{
-public:
-  MultiVarPolynomialJacobian()
-    : nyx::Function<T>(2, 2)
-  {
-    //
-  }
-
-  MultiVarPolynomialJacobian(unsigned int inDim, unsigned int outDim)
-    : nyx::Function<T>(inDim, outDim)
-  {
-    //
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> X)
-  {
-    // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Y(this->outDim, this->inDim);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
-
-    if (this->inDim != this->outDim)
-    {
-      std::cout << "error in: " << __func__ << " input and output dimension should match" << std::endl;
-      return Y;
-    }
-
-    Y(0, 0) = 3.0 * std::pow(X(0), 2) * std::sqrt(X(1)); // dY1 / dX1
-    Y(0, 1) = std::pow(X(0), 3) / (2.0 * std::sqrt(X(1))); // dY1 / dX2
-    Y(1, 0) = 2.0 * X(0) * std::pow(X(1), 3); // dY2 / dX1
-    Y(1, 1) = std::pow(X(0), 2) * 3.0 * std::pow(X(1), 2); // dY2 / dX2
-
-    return Y;
-  }
-
-protected:
-
-};
-
-//-------------------------------------------------------------------------
-template <typename T>
-class NonLinearFunction2 : public nyx::Function<T>
+class NonLinearFunction2 : public nyx::Function<T, 1, 1>
 {
 public:
   NonLinearFunction2()
-    : nyx::Function<T>(1, 1)
+    : nyx::Function<T, 1, 1>()
   {
     this->W.resize(6, 0);
     this->W[0] = 5.0;
@@ -575,16 +219,7 @@ public:
   Eigen::Matrix<T, 1, 1> operator()(Eigen::Matrix<T, 1, 1> X)
   {
     // init output and set all values to zero
-    Eigen::Matrix<T, 1, 1> Y(this->outDim, 1);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (X.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << X.rows() << std::endl;
-      return Y;
-    }
+    Eigen::Matrix<T, 1, 1> Y = Eigen::Matrix<T, 1, 1>::Zero();
 
     // parametric function
     Y(0) = W[0] * std::exp(-std::pow(X(0) - W[1], 2) / (2.0 * W[2])) + W[3] * std::cos(W[4] * X(0)) + W[5] * std::pow(X(0), 2);
@@ -597,28 +232,19 @@ public:
 
 //-------------------------------------------------------------------------
 template <typename T>
-class NonLinearFunction2Parameters : public nyx::Function<T>
+class NonLinearFunction2Parameters : public nyx::Function<T, 6, 1>
 {
 public:
   NonLinearFunction2Parameters()
-    : nyx::Function<T>(6, 1)
+    : nyx::Function<T, 6, 1>()
   {
     this->X.resize(1, 0);
   }
 
-  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, 6, 1> W)
+  Eigen::Matrix<T, 1, 1> operator()(Eigen::Matrix<T, 6, 1> W)
   {
     // init output and set all values to zero
-    Eigen::Matrix<T, 1, 1> Y(this->outDim, this->inDim);
-    Y.setZero();
-
-    // Check dimensions consistency
-    if (W.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << W.rows() << std::endl;
-      return Y;
-    }
+    Eigen::Matrix<T, 1, 1> Y = Eigen::Matrix<T, 1, 1>::Zero();
 
     // parametric function
     Y(0) = W(0) * std::exp(-std::pow(X[0] - W(1), 2) / (2.0 * W(2))) + W(3) * std::cos(W(4) * X[0]) + W(5) * std::pow(X[0], 2);
@@ -631,40 +257,19 @@ public:
 
 //-------------------------------------------------------------------------
 template <typename T>
-class NonLinearFunction2ParametersJacobian : public nyx::Function<T>
+class NonLinearFunction3 : public nyx::Function<T, 2, 2>
 {
 public:
-  NonLinearFunction2ParametersJacobian()
-    : nyx::Function<T>(6, 1)
-  {
-    this->X.resize(1, 0);
-  }
-
-  Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> operator()(Eigen::Matrix<T, Eigen::Dynamic, 1> W)
+  Eigen::Matrix<T, 2, 1> operator()(Eigen::Matrix<T, 2, 1> X)
   {
     // init output and set all values to zero
-    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> Y(1, 6);
-    Y.setZero();
+    Eigen::Matrix<T, 2, 1> Y = Eigen::Matrix<T, 2, 1>::Zero();
 
-    // Check dimensions consistency
-    if (W.rows() != this->inDim)
-    {
-      std::cout << "error in: " << __func__ << " expected vector of dim: "
-        << this->inDim << " got dim: " << W.rows() << std::endl;
-      return Y;
-    }
-
-    Y(0) = std::exp(-std::pow(X[0] - W[1], 2) / (2.0 * W[2])); // df / dw0
-    Y(1) = W[0] * (X[0] - W[1]) / W[2] * std::exp(-std::pow(X[0] - W[1], 2) / (2.0 * W[2])); // df / dw1
-    Y(2) = W[0] * std::pow(X[0] - W[1], 2) / (2.0 * W[2] * W[2]) * std::exp(-std::pow(X[0] - W[1], 2) / (2.0 * W[2])); // df / dw2
-    Y(3) = std::cos(W[4] * X[0]); // df / dw3
-    Y(4) = -W[3] * X[0] * std::sin(W[4] * X[0]); // df / dw4
-    Y(5) = X[0] * X[0];
+    Y(0) = std::pow(X(0) - 4, 2.0) * std::pow(X(1) - 10.0, 2.0); // X(0) = 4 is root
+    Y(1) = std::pow(X(0), 2.0) * std::pow(X(1) + 7, 2.0); // X(1) = -7 is root
 
     return Y;
   }
-
-  std::vector<T> X;
 };
 
 #endif // COMMON_FUNCTIONS_H

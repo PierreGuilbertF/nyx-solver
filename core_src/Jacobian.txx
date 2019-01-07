@@ -31,35 +31,23 @@
 #define JACOBIAN_TXX
 
 //-------------------------------------------------------------------------
-template <typename T>
-Jacobian<T>::Jacobian()
+template <typename T, unsigned int N, unsigned int M>
+Jacobian<T, N, M>::Jacobian()
 {
-  // default R -> R function differential
-  this->inDim = 1;
-  this->outDim = 1;
 }
 
 //-------------------------------------------------------------------------
-template <typename T>
-Jacobian<T>::Jacobian(unsigned int argInDim, unsigned int argOutDim)
+template <typename T, unsigned int N, unsigned int M>
+unsigned int Jacobian<T, N, M>::GetInDim()
 {
-  // R^inDim -> R^outDim function differential
-  this->inDim = argInDim;
-  this->outDim = argOutDim;
+  return N;
 }
 
 //-------------------------------------------------------------------------
-template <typename T>
-unsigned int Jacobian<T>::GetInDim()
+template <typename T, unsigned int N, unsigned int M>
+unsigned int Jacobian<T, N, M>::GetOutDim()
 {
-  return this->inDim;
-}
-
-//-------------------------------------------------------------------------
-template <typename T>
-unsigned int Jacobian<T>::GetOutDim()
-{
-  return this->outDim;
+  return M;
 }
 
 #endif // JACOBIAN_TXX

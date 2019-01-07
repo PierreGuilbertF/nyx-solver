@@ -29,6 +29,7 @@
 #include "Function.h"
 #include "NumericalDiff.h"
 #include "CommonFunctions.h"
+#include "CommonJacobians.h"
 #include "Tools.h"
 
 // STD
@@ -39,8 +40,8 @@ int NumericalDiffSquareRoot()
 {
   unsigned int nbrErr = 0;
 
-  SquareRoot<double> vectSqrt(3, 3);
-  nyx::NumericalDiff<SquareRoot<double>, double> diff(vectSqrt);
+  SquareRoot<double, 3> vectSqrt;
+  nyx::NumericalDiff<SquareRoot<double, 3>, double> diff(vectSqrt);
 
   Eigen::Matrix<double, 3, 1> X;
   X << 10.0, 101.67, 1254.980;
@@ -76,9 +77,9 @@ int NumericalDiffEulerAngleMapping()
 {
   unsigned int nbrErr = 0;
 
-  EulerAngleSO3Mapping<double> eulMapping(3, 9);
+  EulerAngleSO3Mapping<double> eulMapping;
   nyx::NumericalDiff<EulerAngleSO3Mapping<double>, double> numJacobian(eulMapping);
-  EulerAngleSO3MappingJacobian<double> analyticjacobian(3, 9);
+  EulerAngleSO3MappingJacobian<double> analyticjacobian;
 
   // test random samples with fixed seed
   unsigned int nbrSample = 25;
@@ -157,9 +158,9 @@ int NumericalDiffMethods()
 {
   unsigned int nbrErr = 0;
 
-  MultiVarPolynomial<double> f(2, 2);
+  MultiVarPolynomial<double> f;
   nyx::NumericalDiff<MultiVarPolynomial<double>, double> J1;
-  MultiVarPolynomialJacobian<double> J2(2, 2);
+  MultiVarPolynomialJacobian<double> J2;
 
   Eigen::Matrix<double, 2, 1> X;
   X << -23.4, 11.23;

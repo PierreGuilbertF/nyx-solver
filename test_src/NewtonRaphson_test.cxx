@@ -30,6 +30,7 @@
 #include "NumericalDiff.h"
 #include "NewtonRaphson.h"
 #include "CommonFunctions.h"
+#include "CommonJacobians.h"
 #include "Tools.h"
 
 // STD
@@ -41,7 +42,7 @@ int TestNewtonRaphsonMethod()
   unsigned int nbrErr = 0;
 
   // Function we want to know the root
-  NonLinearFunction<double> F(3, 3);
+  NonLinearFunction<double> F;
 
   // Jacobian of the function, here
   // we use a numerical differenciation jacobian
@@ -66,6 +67,61 @@ int TestNewtonRaphsonMethod()
   for (unsigned int k = 0; k < 3; ++k)
   {
     if (!nyx::IsEqual<double>(Xs(k), Xestimated(k), 1e-3))
+      nbrErr++;
+  }
+
+  if (nbrErr == 0)
+  {
+    std::cout << "Test: " << __func__ << " SUCCEEDED" << std::endl;
+  }
+  else
+  {
+    std::cout << "Test: " << __func__ << " FAILED" << std::endl;
+  }
+  return nbrErr;
+}
+
+//-------------------------------------------------------------------------
+int TestNewtonRaphsonMethod2()
+{
+  unsigned int nbrErr = 0;
+
+  // Function we want to know the root
+  NonLinearFunction3<double> F;
+
+  // Jacobian of the function, here
+  // we use a numerical differenciation jacobian
+  nyx::NumericalDiff<NonLinearFunction3<double>, double> J(F);
+
+  // Now, instanciate the Newton Raphson solver
+  // using the numerical differenciation jacobian
+  nyx::NewtonRaphson<NonLinearFunction3<double>,
+    nyx::NumericalDiff<NonLinearFunction3<double>, double>,
+    double> NewtonRaphsonSolver(F, J);
+
+  // Instanciate a Newton Raphson solver using the
+  // analytic jacobian
+  NonLinearFunction3Jacobian<double> J2;
+  nyx::NewtonRaphson<NonLinearFunction3<double>,
+    NonLinearFunction3Jacobian<double>,
+    double> NewtonRaphsonSolverAnalytic(F, J2);
+
+  // Solve F(X) = Y
+  Eigen::Matrix<double, 2, 1> X0, Y, Xs;
+  Y << 0, 0;
+  X0 << 6.98, -3.47;
+  Eigen::Matrix<double, 2, 1> Xestimated1 = NewtonRaphsonSolver(Y, X0);
+  Eigen::Matrix<double, 2, 1> Xestimated2 = NewtonRaphsonSolverAnalytic(Y, X0);
+
+  // Expected root
+  Xs << 4.0, -7.0;
+
+  for (unsigned int k = 0; k < 2; ++k)
+  {
+    if (!nyx::IsEqual<double>(Xs(k), Xestimated1(k), 1e-5))
+      nbrErr++;
+
+    if (!nyx::IsEqual<double>(Xs(k), Xestimated2(k), 1e-5))
       nbrErr++;
   }
 
